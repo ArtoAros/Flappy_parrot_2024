@@ -1,11 +1,10 @@
-# ui.py
-
 import pygame
 import sys
 from database import Database
 
 # Инициализация Pygame
 pygame.init()
+pygame.mixer.init()  # Инициализация микшера для музыки
 
 # Размеры экрана
 SCREEN_WIDTH = 643
@@ -29,41 +28,91 @@ pygame.display.set_caption('Flappy Parrot')
 background_image = pygame.image.load('assets/images/flappy-bird-background.png')
 parrot_image = pygame.image.load('assets/images/pixel_parrot.png')
 
+pygame.mixer.music.load('assets/music/background_music.mp3')  # Укажите путь к файлу с музыкой
+pygame.mixer.music.play(-1, 0.0)  # Бесконечный цикл
+
+
 class UIManager:
     def __init__(self):
         self.player_name = ""
         self.database = Database('highscores.db')
+        self.volume = 5  # Изначальный уровень громкости (от 0 до 10)
+        pygame.mixer.music.set_volume(self.volume / 10.0)  # Устанавливаем громкость
 
     def draw_exit_button(self):
-        # Создаем текст "Выход" и получаем размеры прямоугольника кнопки
         exit_text = FONT_SMALL.render('Назад', True, WHITE)
         exit_button_rect = pygame.Rect(10, 10, exit_text.get_width() + 15, exit_text.get_height() + 15)
-
-        # Пропускаем вызов pygame.draw.rect, чтобы не рисовать фон кнопки, делая ее "невидимой"
-
-        # Рисуем только текст
         screen.blit(exit_text, (exit_button_rect.x + 10, exit_button_rect.y + 5))
-
-        # Возвращаем прямоугольник для проверки нажатия мышкой
         return exit_button_rect
+
+    def draw_music_button(self):
+        music_text = FONT_SMALL.render('Музыка', True, WHITE)
+        music_button_rect = pygame.Rect(SCREEN_WIDTH // 2 - music_text.get_width() // 2, 350, music_text.get_width(), music_text.get_height())
+        screen.blit(music_text, music_button_rect.topleft)
+        return music_button_rect
+
+    def adjust_volume(self):
+        while True:
+            screen.blit(background_image, (0, 0))
+
+            # Текст для громкости
+            volume_text = FONT_MEDIUM.render(f'Громкость: {self.volume}', True, WHITE)
+            volume_text_rect = volume_text.get_rect(center=(SCREEN_WIDTH // 2, 200))
+
+            screen.blit(volume_text, volume_text_rect.topleft)
+
+            # Увеличиваем размер шрифта для кнопок "+" и "-"
+            button_font = pygame.font.SysFont('Arial', 48)  # Увеличиваем размер шрифта
+
+            # Кнопки для увеличения и уменьшения громкости
+            decrease_text = button_font.render('-', True, WHITE)
+            increase_text = button_font.render('+', True, WHITE)
+
+            # Располагаем кнопки на одной линии с текстом громкости
+            decrease_rect = pygame.Rect(volume_text_rect.left - 50, 200, decrease_text.get_width(),
+                                        decrease_text.get_height())
+            increase_rect = pygame.Rect(volume_text_rect.right + 30, 200, increase_text.get_width(),
+                                        increase_text.get_height())
+
+            screen.blit(decrease_text, decrease_rect.topleft)
+            screen.blit(increase_text, increase_rect.topleft)
+
+            # Отображаем кнопку "Назад"
+            exit_button_rect = self.draw_exit_button()
+
+            pygame.display.flip()
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.quit_game()
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    if exit_button_rect.collidepoint(event.pos):
+                        return  # Возвращаемся на главный экран
+                    elif decrease_rect.collidepoint(event.pos) and self.volume > 0:
+                        self.volume -= 1
+                        pygame.mixer.music.set_volume(self.volume / 10.0)  # Обновляем громкость
+                    elif increase_rect.collidepoint(event.pos) and self.volume < 10:
+                        self.volume += 1
+                        pygame.mixer.music.set_volume(self.volume / 10.0)  # Обновляем громкость
 
     def main_menu(self):
         while True:
             screen.blit(background_image, (0, 0))
-            # title_text = FONT_LARGE.render('Flappy Parrot', True, WHITE)
-            # screen.blit(title_text, (SCREEN_WIDTH // 2 - title_text.get_width() // 2, 100))
 
             # Опции меню
             start_text = FONT_MEDIUM.render('Начать игру', True, WHITE)
             highscores_text = FONT_MEDIUM.render('Таблица рекордов', True, WHITE)
+            music_text = FONT_MEDIUM.render('Музыка', True, WHITE)
             exit_text = FONT_MEDIUM.render('Выход', True, WHITE)
 
             start_rect = pygame.Rect(SCREEN_WIDTH // 2 - start_text.get_width() // 2, 200, start_text.get_width(), start_text.get_height())
             highscores_rect = pygame.Rect(SCREEN_WIDTH // 2 - highscores_text.get_width() // 2, 250, highscores_text.get_width(), highscores_text.get_height())
-            exit_rect = pygame.Rect(SCREEN_WIDTH // 2 - exit_text.get_width() // 2, 300, exit_text.get_width(), exit_text.get_height())
+            music_rect = pygame.Rect(SCREEN_WIDTH // 2 - music_text.get_width() // 2, 300, music_text.get_width(), music_text.get_height())
+            exit_rect = pygame.Rect(SCREEN_WIDTH // 2 - exit_text.get_width() // 2, 350, exit_text.get_width(), exit_text.get_height())
 
             screen.blit(start_text, start_rect.topleft)
             screen.blit(highscores_text, highscores_rect.topleft)
+            screen.blit(music_text, music_rect.topleft)
             screen.blit(exit_text, exit_rect.topleft)
 
             pygame.display.flip()
@@ -77,6 +126,8 @@ class UIManager:
                         return
                     elif highscores_rect.collidepoint(event.pos):
                         self.show_high_scores()
+                    elif music_rect.collidepoint(event.pos):
+                        self.adjust_volume()  # Переход к регулировке громкости
                     elif exit_rect.collidepoint(event.pos):
                         self.quit_game()
 
@@ -103,7 +154,6 @@ class UIManager:
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if exit_button_rect.collidepoint(event.pos):
                         self.main_menu()
-                        # Возвращаемся в главное меню, если нажата кнопка "Назад"
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
                         if self.player_name.strip() == "":
@@ -138,49 +188,8 @@ class UIManager:
                     if exit_button_rect.collidepoint(event.pos):
                         showing = False
 
-    def game_over_screen(self, score, is_new_high_score):
-        self.database.save_score(self.player_name, score)
-        showing = True
-
-        while showing:
-            screen.fill(BLACK)
-            game_over_text = FONT_LARGE.render('Игра окончена', True, WHITE)
-            screen.blit(game_over_text, (SCREEN_WIDTH // 2 - game_over_text.get_width() // 2, 100))
-
-            score_text = FONT_MEDIUM.render(f'Ваш счёт: {score}', True, WHITE)
-            screen.blit(score_text, (SCREEN_WIDTH // 2 - score_text.get_width() // 2, 200))
-
-            if is_new_high_score:
-                congrats_text = FONT_MEDIUM.render('Новый рекорд!', True, WHITE)
-                screen.blit(congrats_text, (SCREEN_WIDTH // 2 - congrats_text.get_width() // 2, 250))
-
-            retry_text = FONT_MEDIUM.render('Играть снова', True, WHITE)
-            menu_text = FONT_MEDIUM.render('Главное меню', True, WHITE)
-
-            retry_rect = pygame.Rect(SCREEN_WIDTH // 2 - retry_text.get_width() // 2, 350, retry_text.get_width(), retry_text.get_height())
-            menu_rect = pygame.Rect(SCREEN_WIDTH // 2 - menu_text.get_width() // 2, 400, menu_text.get_width(), menu_text.get_height())
-
-            screen.blit(retry_text, retry_rect.topleft)
-            screen.blit(menu_text, menu_rect.topleft)
-
-            # Отображение кнопки выхода
-            exit_button_rect = self.draw_exit_button()
-            pygame.display.flip()
-
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    self.quit_game()
-                elif event.type == pygame.MOUSEBUTTONDOWN:
-                    if retry_rect.collidepoint(event.pos):
-                        showing = False
-                    elif menu_rect.collidepoint(event.pos):
-                        showing = False
-                        self.main_menu()
-                    elif exit_button_rect.collidepoint(event.pos):
-                        showing = False
-                        self.main_menu()
-
     def quit_game(self):
+        pygame.mixer.music.stop()
         self.database.close()
         pygame.quit()
         sys.exit()

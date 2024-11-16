@@ -35,40 +35,49 @@ class UIManager:
         self.database = Database('highscores.db')
 
     def draw_exit_button(self):
-        # Рисует кнопку "выход" в верхнем левом углу
-        exit_text = FONT_SMALL.render('Выход', True, WHITE)
-        exit_button_rect = pygame.Rect(10, 10, exit_text.get_width() + 20, exit_text.get_height() + 10)
-        pygame.draw.rect(screen, GRAY, exit_button_rect)
+        # Создаем текст "Выход" и получаем размеры прямоугольника кнопки
+        exit_text = FONT_SMALL.render('Назад', True, WHITE)
+        exit_button_rect = pygame.Rect(10, 10, exit_text.get_width() + 15, exit_text.get_height() + 15)
+
+        # Пропускаем вызов pygame.draw.rect, чтобы не рисовать фон кнопки, делая ее "невидимой"
+
+        # Рисуем только текст
         screen.blit(exit_text, (exit_button_rect.x + 10, exit_button_rect.y + 5))
+
+        # Возвращаем прямоугольник для проверки нажатия мышкой
         return exit_button_rect
 
     def main_menu(self):
         while True:
             screen.blit(background_image, (0, 0))
-            title_text = FONT_LARGE.render('Flappy Parrot', True, WHITE)
-            screen.blit(title_text, (SCREEN_WIDTH // 2 - title_text.get_width() // 2, 100))
+            # title_text = FONT_LARGE.render('Flappy Parrot', True, WHITE)
+            # screen.blit(title_text, (SCREEN_WIDTH // 2 - title_text.get_width() // 2, 100))
 
             # Опции меню
-            start_text = FONT_MEDIUM.render('1. Начать игру', True, WHITE)
-            highscores_text = FONT_MEDIUM.render('2. Таблица рекордов', True, WHITE)
-            exit_text = FONT_MEDIUM.render('3. Выход', True, WHITE)
+            start_text = FONT_MEDIUM.render('Начать игру', True, WHITE)
+            highscores_text = FONT_MEDIUM.render('Таблица рекордов', True, WHITE)
+            exit_text = FONT_MEDIUM.render('Выход', True, WHITE)
 
-            screen.blit(start_text, (SCREEN_WIDTH // 2 - start_text.get_width() // 2, 200))
-            screen.blit(highscores_text, (SCREEN_WIDTH // 2 - highscores_text.get_width() // 2, 250))
-            screen.blit(exit_text, (SCREEN_WIDTH // 2 - exit_text.get_width() // 2, 300))
+            start_rect = pygame.Rect(SCREEN_WIDTH // 2 - start_text.get_width() // 2, 200, start_text.get_width(), start_text.get_height())
+            highscores_rect = pygame.Rect(SCREEN_WIDTH // 2 - highscores_text.get_width() // 2, 250, highscores_text.get_width(), highscores_text.get_height())
+            exit_rect = pygame.Rect(SCREEN_WIDTH // 2 - exit_text.get_width() // 2, 300, exit_text.get_width(), exit_text.get_height())
+
+            screen.blit(start_text, start_rect.topleft)
+            screen.blit(highscores_text, highscores_rect.topleft)
+            screen.blit(exit_text, exit_rect.topleft)
 
             pygame.display.flip()
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.quit_game()
-                elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_1:
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    if start_rect.collidepoint(event.pos):
                         self.get_player_name()
                         return
-                    elif event.key == pygame.K_2:
+                    elif highscores_rect.collidepoint(event.pos):
                         self.show_high_scores()
-                    elif event.key == pygame.K_3:
+                    elif exit_rect.collidepoint(event.pos):
                         self.quit_game()
 
     def get_player_name(self):
@@ -76,18 +85,25 @@ class UIManager:
         self.player_name = ""
 
         while input_active:
-            screen.fill(BLACK)
+            screen.blit(background_image, (0, 0))
             prompt_text = FONT_MEDIUM.render('Введите ваше имя:', True, WHITE)
             screen.blit(prompt_text, (SCREEN_WIDTH // 2 - prompt_text.get_width() // 2, 200))
 
             name_text = FONT_MEDIUM.render(self.player_name, True, WHITE)
             screen.blit(name_text, (SCREEN_WIDTH // 2 - name_text.get_width() // 2, 250))
 
+            # Отображение кнопки выхода
+            exit_button_rect = self.draw_exit_button()
+
             pygame.display.flip()
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.quit_game()
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    if exit_button_rect.collidepoint(event.pos):
+                        self.main_menu()
+                        # Возвращаемся в главное меню, если нажата кнопка "Назад"
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
                         if self.player_name.strip() == "":
@@ -103,7 +119,7 @@ class UIManager:
         showing = True
 
         while showing:
-            screen.fill(BLACK)
+            screen.blit(background_image, (0, 0))
             title_text = FONT_LARGE.render('Таблица рекордов', True, WHITE)
             screen.blit(title_text, (SCREEN_WIDTH // 2 - title_text.get_width() // 2, 50))
 
@@ -118,9 +134,6 @@ class UIManager:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.quit_game()
-                elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
-                        showing = False
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if exit_button_rect.collidepoint(event.pos):
                         showing = False
@@ -141,10 +154,14 @@ class UIManager:
                 congrats_text = FONT_MEDIUM.render('Новый рекорд!', True, WHITE)
                 screen.blit(congrats_text, (SCREEN_WIDTH // 2 - congrats_text.get_width() // 2, 250))
 
-            retry_text = FONT_MEDIUM.render('1. Играть снова', True, WHITE)
-            menu_text = FONT_MEDIUM.render('2. Главное меню', True, WHITE)
-            screen.blit(retry_text, (SCREEN_WIDTH // 2 - retry_text.get_width() // 2, 350))
-            screen.blit(menu_text, (SCREEN_WIDTH // 2 - menu_text.get_width() // 2, 400))
+            retry_text = FONT_MEDIUM.render('Играть снова', True, WHITE)
+            menu_text = FONT_MEDIUM.render('Главное меню', True, WHITE)
+
+            retry_rect = pygame.Rect(SCREEN_WIDTH // 2 - retry_text.get_width() // 2, 350, retry_text.get_width(), retry_text.get_height())
+            menu_rect = pygame.Rect(SCREEN_WIDTH // 2 - menu_text.get_width() // 2, 400, menu_text.get_width(), menu_text.get_height())
+
+            screen.blit(retry_text, retry_rect.topleft)
+            screen.blit(menu_text, menu_rect.topleft)
 
             # Отображение кнопки выхода
             exit_button_rect = self.draw_exit_button()
@@ -153,14 +170,13 @@ class UIManager:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.quit_game()
-                elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_1:
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    if retry_rect.collidepoint(event.pos):
                         showing = False
-                    elif event.key == pygame.K_2:
+                    elif menu_rect.collidepoint(event.pos):
                         showing = False
                         self.main_menu()
-                elif event.type == pygame.MOUSEBUTTONDOWN:
-                    if exit_button_rect.collidepoint(event.pos):
+                    elif exit_button_rect.collidepoint(event.pos):
                         showing = False
                         self.main_menu()
 

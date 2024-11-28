@@ -1,151 +1,164 @@
 import pygame
 import random
 
-# Инициализация Pygame
-pygame.init()
+class FlappyBirdGame:
+    def __init__(self, window):
+        self.window = window
+        self.window_width = 1000
+        self.window_height = 600
+        self.window.fill((0, 0, 0))  # Черный фон
+        self.bird_x = 50
+        self.bird_y = 300
+        self.bird_width = 20
+        self.bird_height = 20
+        self.bird_speed = 0
+        self.gravity = 0.35
 
-# Определение параметров окна игры
-window_width = 1000
-window_height = 600
-window = pygame.display.set_mode((window_width, window_height))
-pygame.display.set_caption('Flappy Bird')
+        self.pipe_width = 40
+        self.pipe_speed = 3
+        self.pipe_gap = 150
+        self.game_over = False
 
-# Цвета
-black = (0, 0, 0)
-white = (255, 255, 255)
+        self.pipes = []
+        self.pipe_frequency = 200
+        self.pipe_counter = 0
 
-# Основные параметры игры
-bird_x = 50
-bird_y = 300
-bird_width = 20
-bird_height = 20
-bird_speed = 0
-gravity = 0.35
+        self.score = 0
 
-pipe_width = 40
-pipe_speed = 3
-pipe_gap = 150 
+        self.sky_image = pygame.image.load('sky.jpeg').convert()
+        self.sky_image = pygame.transform.scale(self.sky_image, (self.window_width, self.window_height))
+        self.sky_rect = self.sky_image.get_rect()
 
-game_over = False
+        self.texture = pygame.image.load("texture.jpeg").convert()
+        self.font = pygame.font.Font(None, 36)
 
-pipes = []
-pipe_frequency = 200
-pipe_counter = 0
+        self.play_again_button = pygame.Rect(self.window_width // 2 - 100, self.window_height // 2, 200, 50)
+        self.main_menu_button = pygame.Rect(self.window_width // 2 - 100, self.window_height // 2 + 60, 200, 50)
+        self.start_button = pygame.Rect(self.window_width // 2 - 100, self.window_height // 2 - 25, 200, 50)
+        self.start_displayed = True  # Flag for showing the start screen
 
-score = 0
+        self.run_game()
 
-def create_pipe():
-    pipe_height = random.randint(50, window_height-300)
-    pipes.append({'x': window_width, 'height': pipe_height})
+    def create_pipe(self):
+        pipe_height = random.randint(50, self.window_height - 300)
+        self.pipes.append({'x': self.window_width, 'height': pipe_height})
 
-clock = pygame.time.Clock()
-start_button = pygame.Rect(window_width // 2 - 100, window_height // 2 - 25, 200, 50)
-start_displayed = True  # Флаг для отображения начала игры
+    def draw_game(self):
+        self.window.blit(self.sky_image, self.sky_rect)
+        if self.game_over:
+            play_again_text = self.font.render('Играть снова', True, (255, 255, 255))
+            play_again_rect = play_again_text.get_rect(center=self.play_again_button.center)
+            self.window.blit(play_again_text, play_again_rect)
 
-# Загрузка изображения неба
-sky_image = pygame.image.load('sky.jpeg').convert()
+            main_menu_text = self.font.render('В главное меню', True, (255, 255, 255))
+            main_menu_rect = main_menu_text.get_rect(center=self.main_menu_button.center)
+            self.window.blit(main_menu_text, main_menu_rect)
 
-# Масштабирование изображения под размер окна
-sky_image = pygame.transform.scale(sky_image, (window_width, window_height))
-sky_rect = sky_image.get_rect()
+            return True
 
-texture = pygame.image.load("texture.jpeg").convert()
+        if self.start_displayed:
+            pygame.draw.rect(self.window, (255, 255, 255), self.start_button)
+            font = pygame.font.Font(None, 24)
+            text = font.render('Press Space to Start', True, (0, 0, 0))
+            text_rect = text.get_rect(center=self.start_button.center)
+            self.window.blit(text, text_rect)
 
-font = pygame.font.Font(None, 36)
-play_again_button = pygame.Rect(window_width // 2 - 100, window_height // 2, 200, 50)
-main_menu_button = pygame.Rect(window_width // 2 - 100, window_height // 2 + 60, 200, 50)
+            return False
 
-running = True
+        # Отрисовываем птицу
+        pygame.draw.rect(self.window, (0, 0, 0), (self.bird_x, self.bird_y, self.bird_width, self.bird_height))
 
-while running:
-    window.blit(sky_image, sky_rect)
+        # Обрабатываем движение труб
+        for pipe in self.pipes:
+            upper_rect = pygame.Rect(pipe['x'], 0, self.pipe_width, pipe['height'])
+            lower_rect = pygame.Rect(pipe['x'], pipe['height'] + self.pipe_gap, self.pipe_width, self.window_height - pipe['height'] - self.pipe_gap)
 
-    if game_over:
-        play_again_text = font.render('Играть снова', True, white)
-        play_again_rect = play_again_text.get_rect(center=play_again_button.center)
-        window.blit(play_again_text, play_again_rect)
-        
-        main_menu_text = font.render('В главное меню', True, white)
-        main_menu_rect = main_menu_text.get_rect(center=main_menu_button.center)
-        window.blit(main_menu_text, main_menu_rect)
+            upper_image = pygame.transform.scale(self.texture, (self.pipe_width, pipe['height']))
+            self.window.blit(upper_image, upper_rect)
+            lower_image = pygame.transform.scale(self.texture, (self.pipe_width, self.window_height - pipe['height'] - self.pipe_gap))
+            self.window.blit(lower_image, lower_rect)
 
-        for event in pygame.event.get():
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                mouse_pos = pygame.mouse.get_pos()
-                if play_again_button.collidepoint(mouse_pos):
-                    game_over = False
-                    break
-                elif main_menu_button.collidepoint(mouse_pos):
+            # Проверка на столкновение
+            if self.bird_x + self.bird_width > pipe['x'] and self.bird_x < pipe['x'] + self.pipe_width:
+                if self.bird_y < pipe['height'] or self.bird_y + self.bird_height > pipe['height'] + self.pipe_gap:
+                    self.game_over = True
+
+        # Обновление скорости и положения птицы
+        self.bird_y += self.bird_speed
+        self.bird_speed += self.gravity
+
+        # Проверка на выход за границы экрана
+        if self.bird_y >= self.window_height or self.bird_y <= 0:
+            self.game_over = True
+
+        # Счет
+        score_text = self.font.render(f'Score: {self.score}', True, pygame.Color(0, 255, 255, 255))
+        self.window.blit(score_text, (self.window_width - 100, 10))
+
+        return False
+
+    def update(self):
+        if not self.game_over:
+            for pipe in self.pipes:
+                pipe['x'] -= self.pipe_speed
+                if pipe['x'] + self.pipe_width < 0:
+                    self.pipes.remove(pipe)
+                    self.score += 1
+
+            self.pipe_counter -= self.pipe_speed
+            if self.pipe_counter <= 0:
+                self.create_pipe()
+                self.pipe_counter = self.pipe_frequency
+
+    def run_game(self):
+        pygame.init()
+        window = pygame.display.set_mode((self.window_width, self.window_height))
+        clock = pygame.time.Clock()
+
+        running = True
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
                     running = False
-                    break
-        if running == False:
-            break
-        if game_over == False:
-            window.fill(white)  # Очистить экран перед отрисовкой игры
-            bird_x = 50
-            bird_y = 300
-            bird_speed = 0
-            gravity = 0.35
-            game_over = False
-            pipes.clear()
-            pipe_counter = 0
-            score = 0
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        if self.start_displayed:
+                            self.start_displayed = False
+                        if not self.game_over:
+                            self.bird_speed = -6
 
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE and start_displayed:
-                start_displayed = False
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    mouse_pos = pygame.mouse.get_pos()
+                    if self.game_over:
+                        if self.play_again_button.collidepoint(mouse_pos):
+                            self.game_over = False
+                            self.score = 0
+                            self.pipes.clear()
+                            self.pipe_counter = 0
+                            self.bird_y = 300
+                            self.bird_speed = 0
+                        elif self.main_menu_button.collidepoint(mouse_pos):
+                            running = False
 
-    if start_displayed:
-        pygame.draw.rect(window, white, start_button)
-        font = pygame.font.Font(None, 24)
-        text = font.render('Press Space to Start', True, black)
-        text_rect = text.get_rect(center=start_button.center)
-        window.blit(text, text_rect)
-    else:
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_SPACE]:
-            bird_speed = -6
+            if not self.game_over:
+                self.update()
 
-        if not game_over:
-            bird_y += bird_speed
-            bird_speed += gravity
+            game_over = self.draw_game()
 
-            for pipe in pipes:
-                pipe['x'] -= pipe_speed
-                if pipe['x'] + pipe_width < 0:
-                    pipes.remove(pipe)
-                    score += 1
-            
-            pipe_counter -= pipe_speed
-            if pipe_counter <= 0:
-                create_pipe()
-                pipe_counter = pipe_frequency
+            if game_over:
+                pygame.display.flip()
+                clock.tick(60)
+                continue
 
-            for pipe in pipes:
-                upper_rect = pygame.Rect(pipe['x'], 0, pipe_width, pipe['height'])
-                lower_rect = pygame.Rect(pipe['x'], pipe['height'] + pipe_gap, pipe_width, window_height - pipe['height'] - pipe_gap)
+            pygame.display.flip()
+            clock.tick(60)
 
-                upper_image = pygame.transform.scale(texture, (pipe_width, pipe['height']))
-                window.blit(upper_image, upper_rect)
-                lower_image = pygame.transform.scale(texture, (pipe_width, window_height - pipe['height'] - pipe_gap))
-                window.blit(lower_image, lower_rect)
+        pygame.quit()
 
+if __name__ == "__main__":
+    pygame.init()
+    window = pygame.display.set_mode((1000, 600))  # Размер окна 1000x600 пикселей
+    pygame.display.set_caption("Flappy Bird Game")  # Устанавливаем заголовок окна
 
-                if bird_x + bird_width > pipe['x'] and bird_x < pipe['x'] + pipe_width:
-                    if bird_y < pipe['height'] or bird_y + bird_height > pipe['height'] + pipe_gap:
-                        game_over = True
-
-            pygame.draw.rect(window, black, (bird_x, bird_y, bird_width, bird_height))
-
-            if bird_y >= window_height or bird_y <= 0:
-                game_over = True
-
-        score_text = font.render('Score: ' + str(score), True, pygame.Color(0, 255, 255, 255))
-        window.blit(score_text, (window_width - 100, 10))
-
-    pygame.display.flip()
-    clock.tick(60 + score * 5)
-pygame.quit()
+    # Передаем созданное окно в игру
+    FlappyBirdGame(window)

@@ -1,14 +1,16 @@
 import pygame
 import sys
+import subprocess
 from database import Database
+from a import FlappyBirdGame
 
 # Инициализация Pygame
 pygame.init()
 pygame.mixer.init()  # Инициализация микшера для музыки
 
 # Размеры экрана
-SCREEN_WIDTH = 643
-SCREEN_HEIGHT = 900
+SCREEN_WIDTH = 1000
+SCREEN_HEIGHT = 600
 
 # Цвета
 WHITE = (255, 255, 255)
@@ -25,7 +27,7 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption('Flappy Parrot')
 
 # Загрузка ресурсов
-background_image = pygame.image.load('assets/images/flappy-bird-background.png')
+background_image = pygame.image.load('sky.jpeg').convert()
 parrot_image = pygame.image.load('assets/images/pixel_parrot.png')
 
 pygame.mixer.music.load('assets/music/background_music.mp3')  # Укажите путь к файлу с музыкой
@@ -123,7 +125,7 @@ class UIManager:
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if start_rect.collidepoint(event.pos):
                         self.get_player_name()
-                        return
+                        self.start_game()
                     elif highscores_rect.collidepoint(event.pos):
                         self.show_high_scores()
                     elif music_rect.collidepoint(event.pos):
@@ -158,6 +160,7 @@ class UIManager:
                     if event.key == pygame.K_RETURN:
                         if self.player_name.strip() == "":
                             self.player_name = "Игрок"
+
                         input_active = False
                     elif event.key == pygame.K_BACKSPACE:
                         self.player_name = self.player_name[:-1]
@@ -186,15 +189,21 @@ class UIManager:
                     self.quit_game()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if exit_button_rect.collidepoint(event.pos):
-                        showing = False
+                        self.main_menu()
+
+    def start_game(self):
+        game = FlappyBirdGame(screen)  # Создаем объект игры
+        game.game_loop()  # Запускаем главный цикл игры
+
+    def save_score(self, score):
+        self.database.insert_high_score(self.player_name, score)
 
     def quit_game(self):
-        pygame.mixer.music.stop()
-        self.database.close()
         pygame.quit()
         sys.exit()
 
-# Для тестирования
-if __name__ == "__main__":
-    ui_manager = UIManager()
-    ui_manager.main_menu()
+
+# Основной процесс игры
+if __name__ == '__main__':
+    ui = UIManager()
+    ui.main_menu()

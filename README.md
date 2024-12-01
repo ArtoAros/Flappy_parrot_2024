@@ -9,3 +9,6 @@ You just need to "pip install pygame")
 requirements.txt is coming soon ...
 
 
+### How to play
+Just clone the repo and start "test_flappy.py"
+

@@ -4,11 +4,13 @@ This project is a simple clone of the famous Flappy Bird game built with Python 
 
 
 ### Tools
-The main library in our project is pygame
+The main library in our project is pygame.
 You just need to "pip install pygame")
+
+
 requirements.txt is coming soon ...
 
 
 ### How to play
-Just clone the repo and start "test_flappy.py"
+Clone the repo and start "test_flappy.py"
 

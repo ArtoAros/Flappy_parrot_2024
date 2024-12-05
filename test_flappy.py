@@ -110,40 +110,58 @@ def get_random_pipes(xpos):
 
 def show_game_over(score, screen):
     font = pygame.font.Font(None, 40)
-    game_over_text = font.render("Game Over", True, (255, 0, 0))
+    font2 = pygame.font.Font(None, 77)
+    game_over_text = font2.render("Game Over", True, (255, 0, 0))
     score_text = font.render(f"Score: {score}", True, (255, 255, 255))
-    retry_text = font.render("Press Space to Restart", True, (255, 255, 255))
+    retry_text = font.render("Press SPACE to Restart", True, (255, 255, 255))
     exit_text = font.render("Press ESC to Exit", True, (255, 255, 255))
 
-    screen.blit(game_over_text, (SCREEN_WIDTH / 2 - game_over_text.get_width() / 2, SCREEN_HEIGHT / 3))
-    screen.blit(score_text, (SCREEN_WIDTH / 2 - score_text.get_width() / 2, SCREEN_HEIGHT / 2))
-    screen.blit(retry_text, (SCREEN_WIDTH / 2 - retry_text.get_width() / 2, SCREEN_HEIGHT / 1.5))
-    screen.blit(exit_text, (SCREEN_WIDTH / 2 - exit_text.get_width() / 2, SCREEN_HEIGHT / 1.2))
+    screen.blit(game_over_text, (SCREEN_WIDTH / 2 - game_over_text.get_width() / 2, SCREEN_HEIGHT / 4))
+    # screen.blit(score_text, (SCREEN_WIDTH / 2 - score_text.get_width() / 2, SCREEN_HEIGHT / 2))
+    screen.blit(retry_text, (SCREEN_WIDTH / 2 - retry_text.get_width() / 2, SCREEN_HEIGHT / 2.05))
+    screen.blit(exit_text, (SCREEN_WIDTH / 2 - exit_text.get_width() / 2, SCREEN_HEIGHT / 1.1))
     pygame.display.update()
 
 
-def draw_main_menu(screen, clock, game_running, main_menu):
+def draw_main_menu(screen, clock, game_running, main_menu, reset_game):
     BACKGROUND = pygame.image.load('assets/sprites/background-day.png')
     BACKGROUND = pygame.transform.scale(BACKGROUND, (400, 600))
 
     font = pygame.font.Font(None, 40)
-    title_text = font.render("Flappy Bird", True, (255, 255, 255))
-    start_button_text = font.render("Press Space to start", True, (255, 255, 255))
+    font2 = pygame.font.Font(None, 77)
+    title_text = font2.render("Flappy Bird", True, (255, 255, 255))
+    start_button_text = font.render("Press SPACE to start", True, (255, 255, 255))
     results_button_text = font.render("View Results", True, (255, 255, 255))
-    exit_button_text = font.render("Exit", True, (255, 255, 255))
+    exit_button_text = font.render("Exit (ESC)", True, (255, 255, 255))
 
-    highscores_rect = pygame.Rect(SCREEN_WIDTH // 2 - results_button_text.get_width() // 2, 250,
+    outline_title = font2.render("Flappy Bird", True, (0, 0, 0))
+    outline_start = font.render("Press SPACE to start", True, (0, 0, 0))
+    outline_results = font.render("Flappy Bird", True, (0, 0, 0))
+    outline_exit = font.render("Flappy Bird", True, (0, 0, 0))
+
+
+    highscores_rect = pygame.Rect(SCREEN_WIDTH // 2 - results_button_text.get_width() // 2, 480,
                                   results_button_text.get_width(), results_button_text.get_height())
 
-    exit_rect = pygame.Rect(SCREEN_WIDTH // 2 - exit_button_text.get_width() // 2, 350, exit_button_text.get_width(),
+    exit_rect = pygame.Rect(SCREEN_WIDTH // 2 - exit_button_text.get_width() // 2, 540, exit_button_text.get_width(),
                             exit_button_text.get_height())
 
     screen.blit(BACKGROUND, (0, 0))
 
-    screen.blit(title_text, (SCREEN_WIDTH / 2 - title_text.get_width() / 2, SCREEN_HEIGHT / 3))
-    screen.blit(start_button_text, (SCREEN_WIDTH / 2 - start_button_text.get_width() / 2, SCREEN_HEIGHT / 2))
-    screen.blit(results_button_text, (SCREEN_WIDTH / 2 - results_button_text.get_width() / 2, SCREEN_HEIGHT / 1.8))
-    screen.blit(exit_button_text, (SCREEN_WIDTH / 2 - exit_button_text.get_width() / 2, SCREEN_HEIGHT / 1.5))
+    # screen.blit(outline_title, (SCREEN_WIDTH // 2 - outline_title.get_width() // 2 - 1, SCREEN_HEIGHT / 4 - 1))
+    # screen.blit(outline_title, (SCREEN_WIDTH // 2 - outline_title.get_width() // 2 - 1, SCREEN_HEIGHT / 4 + 1))
+    # screen.blit(outline_title, (SCREEN_WIDTH // 2 - outline_title.get_width() // 2 + 1, SCREEN_HEIGHT / 4 - 1))
+    # screen.blit(outline_title, (SCREEN_WIDTH // 2 - outline_title.get_width() // 2 + 1, SCREEN_HEIGHT / 4 + 1))
+
+    # screen.blit(outline_start, (SCREEN_WIDTH // 2 - start_button_text.get_width() // 2 - 1, SCREEN_HEIGHT / 2.05 - 1))
+    # screen.blit(outline_start, (SCREEN_WIDTH // 2 - start_button_text.get_width() // 2 - 1, SCREEN_HEIGHT / 2.05 + 1))
+    # screen.blit(outline_start, (SCREEN_WIDTH // 2 - start_button_text.get_width() // 2 + 1, SCREEN_HEIGHT / 2.05 - 1))
+    # screen.blit(outline_start, (SCREEN_WIDTH // 2 - start_button_text.get_width() // 2 + 1, SCREEN_HEIGHT / 2.05 + 1))
+    
+    screen.blit(title_text, (SCREEN_WIDTH // 2 - title_text.get_width() // 2, SCREEN_HEIGHT / 4))
+    screen.blit(start_button_text, (SCREEN_WIDTH // 2 - start_button_text.get_width() // 2, SCREEN_HEIGHT / 2.05))
+    screen.blit(results_button_text, (SCREEN_WIDTH // 2 - results_button_text.get_width() // 2, 480))
+    screen.blit(exit_button_text, (SCREEN_WIDTH // 2 - exit_button_text.get_width() // 2, 540))
 
     pygame.display.update()
     flag_to_quit = False
@@ -155,27 +173,91 @@ def draw_main_menu(screen, clock, game_running, main_menu):
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if highscores_rect.collidepoint(event.pos):
                 flag_to_draw = True
-                ##дописать про остальные флаги= False, добавить в функции to_draw...
+                main_menu = False
+                break
             elif exit_rect.collidepoint(event.pos):
                 flag_to_quit = True
-                # добавить про остальные флаги (НЕ ЗАБЫТЬ!)
+                break
         elif event.type == KEYDOWN:
             if event.key == K_SPACE:  # Start game
                 game_running = True
+                reset_game = True
                 main_menu = False
             elif event.key == K_ESCAPE:  # Exit game
                 pygame.quit()
                 quit()
 
-    return game_running, main_menu, flag_to_draw, flag_to_quit
+    return reset_game, game_running, main_menu, flag_to_draw, flag_to_quit
 
-def draw_results(screen):
+def draw_results(screen, main_menu):
+    BACKGROUND = pygame.image.load('assets/sprites/background-day.png')
+    BACKGROUND = pygame.transform.scale(BACKGROUND, (400, 600))
+
     font = pygame.font.Font(None, 40)
-    results_text = font.render("Results", True, (255, 255, 255))
-    screen.blit(results_text, (SCREEN_WIDTH / 2 - results_text.get_width() / 2, SCREEN_HEIGHT / 2))
+    font2 = pygame.font.Font(None, 67)
+    top_text = font2.render("TOP", True, (255, 255, 255))
+
+    # text = i. {first n letters of username}
+
+    top_1_text = font.render("1. Anya", True, (255, 255, 255))
+    top_2_text = font.render("2. Maksim & Artyom", True, (255, 255, 255))
+    top_3_text = font.render("3. Losen", True, (255, 255, 255))
+    top_4_text = font.render("4. Yo", True, (255, 255, 255))
+    top_5_text = font.render("5. Y", True, (255, 255, 255))
+
+    top_1_score = font.render("777", True, (255, 255, 255))
+    top_2_score = font.render("228", True, (255, 255, 255))
+    top_3_score = font.render("137", True, (255, 255, 255))
+    top_4_score = font.render("69", True, (255, 255, 255))
+    top_5_score = font.render("17", True, (255, 255, 255))
+
+    exit_button_text = font.render("Exit (ESC)", True, (255, 255, 255))
+
+    exit_rect = pygame.Rect(SCREEN_WIDTH // 2 - exit_button_text.get_width() // 2, 540, exit_button_text.get_width(),
+                            exit_button_text.get_height())
+
+    screen.blit(BACKGROUND, (0, 0))
+
+    screen.blit(top_text, (SCREEN_WIDTH // 2 - top_text.get_width() // 2, SCREEN_HEIGHT / 7.3))
+
+    screen.blit(top_1_text, (27, SCREEN_HEIGHT * 1.7 / 7))
+    screen.blit(top_2_text, (27, SCREEN_HEIGHT * 2.2 / 7))
+    screen.blit(top_3_text, (27, SCREEN_HEIGHT * 2.7 / 7))
+    screen.blit(top_4_text, (27, SCREEN_HEIGHT * 3.2 / 7))
+    screen.blit(top_5_text, (27, SCREEN_HEIGHT * 3.7 / 7))
+
+    screen.blit(top_1_score, (327, SCREEN_HEIGHT * 1.7 / 7))
+    screen.blit(top_2_score, (327, SCREEN_HEIGHT * 2.2 / 7))
+    screen.blit(top_3_score, (327, SCREEN_HEIGHT * 2.7 / 7))
+    screen.blit(top_4_score, (327, SCREEN_HEIGHT * 3.2 / 7))
+    screen.blit(top_5_score, (327, SCREEN_HEIGHT * 3.7 / 7))
+
+    screen.blit(exit_button_text, (SCREEN_WIDTH // 2 - exit_button_text.get_width() // 2, 540))
+
     pygame.display.update()
+    showing_highscores = True
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            quit()
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if exit_rect.collidepoint(event.pos):
+                showing_highscores = False
+                main_menu = True
+                break
+        elif event.type == KEYDOWN:
+            if event.key == K_ESCAPE:  # Exit to main menu
+                showing_highscores = False
+                main_menu = True
+                break
 
+    return showing_highscores, main_menu
 
+score = 0
+game_running = False
+main_menu = True
+reset_game = False
+showing_highscores = False
 
 pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -204,91 +286,118 @@ for i in range(2):
 clock = pygame.time.Clock()
 
 score = 0
-game_running = False
-main_menu = True
 
-while main_menu:
-    clock.tick(15)
-    game_running, main_menu, flag_to_draw, flag_to_quit = draw_main_menu(screen, clock, game_running, main_menu)
-    if flag_to_quit:
-        pygame.quit()
-
-
-while game_running:
-    clock.tick(15)
-
-    for event in pygame.event.get():
-        if event.type == QUIT:
+while True:
+    if main_menu:
+        clock.tick(15)
+        reset_game, game_running, main_menu, showing_highscores, flag_to_quit = draw_main_menu(screen, clock, game_running, main_menu, reset_game)
+        if flag_to_quit:
             pygame.quit()
-            quit()
-        if event.type == KEYDOWN:
-            if event.key == K_SPACE or event.key == K_UP:
-                bird.bump()
-                pygame.mixer.music.load(wing)
-                pygame.mixer.music.play()
-            if event.key == K_ESCAPE:
-                main_menu = True
-                game_running = False
+            break
+    
+    if showing_highscores:
+        clock.tick(15)
+        showing_highscores, main_menu = draw_results(screen, main_menu)
 
-    screen.blit(BACKGROUND, (0, 0))
+    if reset_game:
+        bird_group = pygame.sprite.Group()
+        bird = Bird()
+        bird_group.add(bird)
 
-    if is_off_screen(ground_group.sprites()[0]):
-        ground_group.remove(ground_group.sprites()[0])
-        new_ground = Ground(GROUND_WIDTH - 20)
-        ground_group.add(new_ground)
+        ground_group = pygame.sprite.Group()
 
-    if is_off_screen(pipe_group.sprites()[0]):
-        pipe_group.remove(pipe_group.sprites()[0])
-        score += 0
-        pipe_group.remove(pipe_group.sprites()[0])
-        score += 1
-        pipes = get_random_pipes(SCREEN_WIDTH * 2)
-        pipe_group.add(pipes[0])
-        pipe_group.add(pipes[1])
+        for i in range(2):
+            ground = Ground(GROUND_WIDTH * i)
+            ground_group.add(ground)
 
-    bird_group.update()
-    ground_group.update()
-    pipe_group.update()
+        pipe_group = pygame.sprite.Group()
+        for i in range(2):
+            pipes = get_random_pipes(SCREEN_WIDTH * i + 800)
+            pipe_group.add(pipes[0])
+            pipe_group.add(pipes[1])
 
-    bird_group.draw(screen)
-    pipe_group.draw(screen)
-    ground_group.draw(screen)
+        clock = pygame.time.Clock()
 
-    # Display score
-    font = pygame.font.Font(None, 36)
-    score_text = font.render(f"Score: {score}", True, (255, 255, 255))
-    screen.blit(score_text, (SCREEN_WIDTH - score_text.get_width() - 10, 10))
+        score = 0
 
-    pygame.display.update()
+        reset_game = 0
 
-    if (pygame.sprite.groupcollide(bird_group, ground_group, False, False, pygame.sprite.collide_mask) or
-            pygame.sprite.groupcollide(bird_group, pipe_group, False, False, pygame.sprite.collide_mask)):
-        pygame.mixer.music.load(hit)
-        pygame.mixer.music.play()
-        time.sleep(1)
-        show_game_over(score, screen)
+    if game_running:
+        clock.tick(15)
 
-        # Wait for user input to restart or quit
-        waiting = True
-        while waiting:
-            for event in pygame.event.get():
-                if event.type == QUIT:
-                    pygame.quit()
-                    quit()
-                if event.type == KEYDOWN:
-                    if event.key == K_SPACE:
-                        score = 0
-                        bird.rect[1] = SCREEN_HEIGHT / 2
-                        bird.speed = SPEED
-                        bird_group.update()
-                        pipe_group.empty()
-                        pipes = get_random_pipes(SCREEN_WIDTH)
-                        pipe_group.add(pipes[0])
-                        pipe_group.add(pipes[1])
-                        game_running = True
-                        waiting = False
-                    elif event.key == K_ESCAPE:
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                quit()
+            if event.type == KEYDOWN:
+                if event.key == K_SPACE or event.key == K_UP:
+                    bird.bump()
+                    pygame.mixer.music.load(wing)
+                    pygame.mixer.music.play()
+                if event.key == K_ESCAPE:
+                    main_menu = True
+                    game_running = False
+
+        screen.blit(BACKGROUND, (0, 0))
+
+        if is_off_screen(ground_group.sprites()[0]):
+            ground_group.remove(ground_group.sprites()[0])
+            new_ground = Ground(GROUND_WIDTH - 20)
+            ground_group.add(new_ground)
+
+        if is_off_screen(pipe_group.sprites()[0]):
+            pipe_group.remove(pipe_group.sprites()[0])
+            score += 0
+            pipe_group.remove(pipe_group.sprites()[0])
+            score += 1
+            pipes = get_random_pipes(SCREEN_WIDTH * 2)
+            pipe_group.add(pipes[0])
+            pipe_group.add(pipes[1])
+
+        bird_group.update()
+        ground_group.update()
+        pipe_group.update()
+
+        bird_group.draw(screen)
+        pipe_group.draw(screen)
+        ground_group.draw(screen)
+
+        # Display score
+        font = pygame.font.Font(None, 36)
+        score_text = font.render(f"Score: {score}", True, (255, 255, 255))
+        screen.blit(score_text, (SCREEN_WIDTH - score_text.get_width() - 10, 10))
+
+        pygame.display.update()
+
+        if (pygame.sprite.groupcollide(bird_group, ground_group, False, False, pygame.sprite.collide_mask) or
+                pygame.sprite.groupcollide(bird_group, pipe_group, False, False, pygame.sprite.collide_mask)):
+            pygame.mixer.music.load(hit)
+            pygame.mixer.music.play()
+            time.sleep(1)
+            show_game_over(score, screen)
+
+            # Wait for user input to restart or quit
+            waiting = True
+            while waiting:
+                for event in pygame.event.get():
+                    if event.type == QUIT:
                         pygame.quit()
                         quit()
+                    if event.type == KEYDOWN:
+                        if event.key == K_SPACE:
+                            score = 0
+                            bird.rect[1] = SCREEN_HEIGHT / 2
+                            bird.speed = SPEED
+                            bird_group.update()
+                            pipe_group.empty()
+                            pipes = get_random_pipes(SCREEN_WIDTH)
+                            pipe_group.add(pipes[0])
+                            pipe_group.add(pipes[1])
+                            game_running = True
+                            waiting = False
+                        elif event.key == K_ESCAPE:
+                            waiting = False
+                            main_menu = True
+                            game_running = False
 
 pygame.quit()

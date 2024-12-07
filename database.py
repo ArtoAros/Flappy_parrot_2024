@@ -1,46 +1,26 @@
-# database.py
-
 import sqlite3
-from typing import List, Tuple
 
 class Database:
-    def __init__(self, db_path: str = 'highscores.db'):
-        self.db_path = db_path
-        self.connection = sqlite3.connect(self.db_path)
-        self.cursor = self.connection.cursor()
-        self.create_table()
+    def __init__(self, db_name='scores.db'):
+        # Подключаемся к базе данных (если ее нет - будет создана)
+        self.conn = sqlite3.connect(db_name)
+        # Создаем таблицу, если она еще не существует
+        self.conn.execute('''CREATE TABLE IF NOT EXISTS scores (
+                                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                score INTEGER NOT NULL,
+                                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+                             )''')
+        self.conn.commit()
 
-    def create_table(self):
-        """Создает таблицу для хранения рекордов, если она еще не существует."""
-        self.cursor.execute('''
-            CREATE TABLE IF NOT EXISTS highscores (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                score INTEGER NOT NULL
-            )
-        ''')
-        self.connection.commit()
+    def add_score(self, score):
+        # Добавляем запись с результатом в таблицу
+        self.conn.execute('INSERT INTO scores (score) VALUES (?)', (score,))
+        self.conn.commit()
 
-    def save_score(self, name: str, score: int):
-        """Сохраняет новый рекорд в базу данных."""
-        self.cursor.execute('''
-            INSERT INTO highscores (name, score)
-            VALUES (?, ?)
-        ''', (name, score))
-        self.connection.commit()
-
-    def get_high_scores(self, limit: int = 3) -> List[Tuple[str, int]]:
-        """Возвращает список лучших рекордов, отсортированных по убыванию."""
-        self.cursor.execute('''
-            SELECT name, score FROM highscores
-            ORDER BY score DESC
-            LIMIT ?
-        ''', (limit,))
-        return self.cursor.fetchall()
+    def get_top_scores(self, limit=5):
+        # Получаем top N результатов по убыванию
+        cur = self.conn.execute('SELECT score FROM scores ORDER BY score DESC LIMIT ?', (limit,))
+        return [row[0] for row in cur.fetchall()]
 
     def close(self):
-        """Закрывает соединение с базой данных."""
-        self.connection.close()
-
-    def __del__(self):
-        self.close()
+        self.conn.close()

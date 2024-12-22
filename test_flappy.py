@@ -39,7 +39,7 @@ class Bird(pygame.sprite.Sprite):
 
         self.current_image = 0
         self.image = pygame.image.load('assets/sprites/pixil-frame-up-last.png').convert_alpha()
-        self.mask = pygame.mask.from_surface(self.ima
+        self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect()
         self.rect[0] = SCREEN_WIDTH / 6
         self.rect[1] = SCREEN_HEIGHT / 2

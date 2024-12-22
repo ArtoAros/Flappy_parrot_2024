@@ -31,16 +31,15 @@ class Bird(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
 
-        self.images = [pygame.image.load('assets/sprites/bluebird-upflap.png').convert_alpha(),
-                       pygame.image.load('assets/sprites/bluebird-midflap.png').convert_alpha(),
-                       pygame.image.load('assets/sprites/bluebird-downflap.png').convert_alpha()]
+        self.images = [pygame.image.load('assets/sprites/pixil-frame-up-last.png').convert_alpha(),
+                       pygame.image.load('assets/sprites/pixil-frame-mid-last.png').convert_alpha(),
+                       pygame.image.load('assets/sprites/pixil-frame-0-2.png').convert_alpha()]
 
         self.speed = SPEED
 
         self.current_image = 0
-        self.image = pygame.image.load('assets/sprites/bluebird-upflap.png').convert_alpha()
-        self.mask = pygame.mask.from_surface(self.image)
-
+        self.image = pygame.image.load('assets/sprites/pixil-frame-up-last.png').convert_alpha()
+        self.mask = pygame.mask.from_surface(self.ima
         self.rect = self.image.get_rect()
         self.rect[0] = SCREEN_WIDTH / 6
         self.rect[1] = SCREEN_HEIGHT / 2

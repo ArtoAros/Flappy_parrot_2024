@@ -16,7 +16,7 @@ GROUND_HEIGHT = 100
 PIPE_WIDTH = 80
 PIPE_HEIGHT = 500
 
-PIPE_GAP = 150
+PIPE_GAP = 170
 
 wing = 'assets/audio/wing.wav'
 hit = 'assets/audio/hit.wav'
@@ -31,24 +31,36 @@ class Bird(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
 
-        self.images = [pygame.image.load('assets/sprites/pixil-frame-0-2.png').convert_alpha(),
-        pygame.image.load('assets/sprites/pixil-frame-mid-last.png').convert_alpha(),
-        pygame.image.load('assets/sprites/pixil-frame-up-last.png').convert_alpha(),
-        pygame.image.load('assets/sprites/pixil-frame-mid-last.png').convert_alpha()]
+        image_low = pygame.image.load('assets/sprites/pixil-frame-0-2.png').convert_alpha()
+        original_size = image_low.get_size()
+        image_low = pygame.transform.scale(image_low, (original_size[0] * 1.5, original_size[1] * 1.5))
+        
+        image_mid = pygame.image.load('assets/sprites/pixil-frame-mid-last.png').convert_alpha()
+        original_size = image_mid.get_size()
+        image_mid = pygame.transform.scale(image_mid, (original_size[0] * 1.5, original_size[1] * 1.5))
+
+        image_up = pygame.image.load('assets/sprites/pixil-frame-up-last.png').convert_alpha()
+        original_size = image_up.get_size()
+        image_up = pygame.transform.scale(image_up, (original_size[0] * 1.5, original_size[1] * 1.5))
+
+
+        self.images = [image_low, image_mid, image_up, image_mid]
     
 
         self.speed = SPEED
 
         self.current_image = 0
-        self.image = pygame.image.load('assets/sprites/pixil-frame-0-2.png').convert_alpha()
+        self.image = image_low
         self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect()
-        self.rect[0] = SCREEN_WIDTH / 6
-        self.rect[1] = SCREEN_HEIGHT / 2
+        self.rect[0] = SCREEN_WIDTH // 6
+        self.rect[1] = SCREEN_HEIGHT // 2 - 100
 
     def update(self):
         self.current_image += 1
-        self.image = self.images[(self.current_image // 3) % 4]
+        image_number = (self.current_image // 3) % 4
+        self.image = self.images[image_number]
+        self.rect[0] = SCREEN_WIDTH // 6 + (image_number % 2 == 1) * -12 + (image_number % 4 == 2) * -15
         self.speed += GRAVITY
 
         # UPDATE HEIGHT
@@ -107,7 +119,7 @@ def is_off_screen(sprite):
 
 
 def get_random_pipes(xpos):
-    size = random.randint(100, 300)
+    size = random.randint(150, 400)
     pipe = Pipe(False, xpos, size)
     pipe_inverted = Pipe(True, xpos, SCREEN_HEIGHT - size - PIPE_GAP)
     return pipe, pipe_inverted
@@ -134,7 +146,7 @@ def draw_main_menu(screen, clock, game_running, main_menu, reset_game):
 
     font = pygame.font.Font(None, 40)
     font2 = pygame.font.Font(None, 77)
-    title_text = font2.render("Flappy Bird", True, (255, 255, 255))
+    title_text = font2.render("Flappy Parrot", True, (255, 255, 255))
     start_button_text = font.render("Press SPACE to start", True, (255, 255, 255))
     results_button_text = font.render("View Results", True, (255, 255, 255))
     exit_button_text = font.render("Exit (ESC)", True, (255, 255, 255))
@@ -152,16 +164,6 @@ def draw_main_menu(screen, clock, game_running, main_menu, reset_game):
                             exit_button_text.get_height())
 
     screen.blit(BACKGROUND, (0, 0))
-
-    # screen.blit(outline_title, (SCREEN_WIDTH // 2 - outline_title.get_width() // 2 - 1, SCREEN_HEIGHT / 4 - 1))
-    # screen.blit(outline_title, (SCREEN_WIDTH // 2 - outline_title.get_width() // 2 - 1, SCREEN_HEIGHT / 4 + 1))
-    # screen.blit(outline_title, (SCREEN_WIDTH // 2 - outline_title.get_width() // 2 + 1, SCREEN_HEIGHT / 4 - 1))
-    # screen.blit(outline_title, (SCREEN_WIDTH // 2 - outline_title.get_width() // 2 + 1, SCREEN_HEIGHT / 4 + 1))
-
-    # screen.blit(outline_start, (SCREEN_WIDTH // 2 - start_button_text.get_width() // 2 - 1, SCREEN_HEIGHT / 2.05 - 1))
-    # screen.blit(outline_start, (SCREEN_WIDTH // 2 - start_button_text.get_width() // 2 - 1, SCREEN_HEIGHT / 2.05 + 1))
-    # screen.blit(outline_start, (SCREEN_WIDTH // 2 - start_button_text.get_width() // 2 + 1, SCREEN_HEIGHT / 2.05 - 1))
-    # screen.blit(outline_start, (SCREEN_WIDTH // 2 - start_button_text.get_width() // 2 + 1, SCREEN_HEIGHT / 2.05 + 1))
 
     screen.blit(title_text, (SCREEN_WIDTH // 2 - title_text.get_width() // 2, SCREEN_HEIGHT / 4))
     screen.blit(start_button_text, (SCREEN_WIDTH // 2 - start_button_text.get_width() // 2, SCREEN_HEIGHT / 2.05))
@@ -310,7 +312,7 @@ while True:
         reset_game = 0
 
     if game_running:
-        clock.tick(15)
+        clock.tick(min(15 + score // 4, 60))
 
         for event in pygame.event.get():
             if event.type == QUIT:
